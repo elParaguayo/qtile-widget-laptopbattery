@@ -1,0 +1,1 @@
+from .laptopbattery import LaptopBatteryWidget
