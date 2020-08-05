@@ -1,14 +1,14 @@
-pkgname=qtile-alsavolumecontrol-git
-_pkgname=qtile-alsavolumecontrol
+pkgname=qtile-widget-laptopbattery-git
+_pkgname=qtile-widget-laptopbattery
 pkgver=0.0.1
 pkgrel=1
 provides=("$_pkgname")
 conflicts=("$_pkgname")
-pkgdesc="Qtile code to control and display ALSA volume."
-url="https://github.com/elparaguayo/qtile-alsavolumecontrol.git"
+pkgdesc="Qtile widget to display laptop battery status."
+url="https://github.com/elparaguayo/qtile-widget-laptopbattery.git"
 arch=("any")
 license=("MIT")
-depends=("python" "qtile")
+depends=("python" "qtile" "python-pydbus")
 source=("git+https://github.com/elparaguayo/$_pkgname.git")
 md5sums=("SKIP")
 
