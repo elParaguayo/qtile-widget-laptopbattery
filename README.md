@@ -13,19 +13,19 @@ The widget is drawn by the module rather than using icons from a theme. This all
 Here is a screenshot from my HTPC showing the widget in the bar.
 
 _Normal:_</br>
-![Screenshot](images/battery-normal.png?raw=true)
+![Screenshot](images/battery_normal.png?raw=true)
 
 _Low:_</br>
-![Screenshot](images/battery-low.png?raw=true)
+![Screenshot](images/battery_low.png?raw=true)
 
 _Critical:_</br>
-![Screenshot](images/battery-critical.png?raw=true)
+![Screenshot](images/battery_critical.png?raw=true)
 
 _Charging:_</br>
-![Screenshot](images/battery-charging.png?raw=true)
+![Screenshot](images/battery_charging.png?raw=true)
 
 _Multiple batteries:_</br>
-![Screenshot](images/battery-multiple.png?raw=true)
+![Screenshot](images/battery_multiple.png?raw=true)
 
 ## Installation
 
