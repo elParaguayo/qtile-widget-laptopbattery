@@ -2,6 +2,7 @@ import pydbus
 
 from libqtile.widget import base
 from libqtile import bar, images
+from libqtile.log_utils import logger
 
 UPOWER_INTERFACE = ".UPower"
 
@@ -10,6 +11,7 @@ class LaptopBatteryWidget(base._Widget):
 
     orientations = base.ORIENTATION_HORIZONTAL
     defaults = [
+        ("font_colour", "ffffff", "Font colour for information text"),
         ("battery_height", 10, "Height of battery icon"),
         ("battery_width", 20, "Size of battery icon"),
         ("battery_name", None, "Battery name. None = all batteries"),
@@ -23,11 +25,18 @@ class LaptopBatteryWidget(base._Widget):
         ("spacing", 5, "Space between batteries"),
         ("percentage_low", 0.20, "Low level threshold."),
         ("percentage_critical", 0.10, "Critical level threshold."),
+        ("text_charging", "({percentage:.0f}%) {ttf} until fully charged"),
+        ("text_discharging", "({percentage:.0f}%) {tte} until empty"),
+        ("text_displaytime", 5, "Time for text to remain before hiding"),
     ]
 
     def __init__(self, **config):
         base._Widget.__init__(self, bar.CALCULATED, **config)
         self.add_defaults(LaptopBatteryWidget.defaults)
+
+        # Initial variables to hide text
+        self.show_text = False
+        self.hide_timer = None
 
     def _configure(self, qtile, bar):
         base._Widget._configure(self, qtile, bar)
@@ -57,20 +66,52 @@ class LaptopBatteryWidget(base._Widget):
 
         self.update()
 
+    def max_text_length(self):
+        # Generate text string based on status
+        if self.charging:
+            text = self.text_charging.format(percentage=100, ttf="99:99")
+        else:
+            text = self.text_discharging.format(percentage=100, tte="99:99")
+
+        # Calculate width of text
+        width, _ = self.drawer.max_layout_size(
+            [text],
+            self.font,
+            self.fontsize
+        )
+
+        return width
+
     def calculate_length(self):
+        # Start with zero width and we'll add to it
+        bar_length = 0
+
+        # We can use maths to simplify if more than one battery
         num_batteries = len(self.batteries)
+
         if num_batteries:
+            # Icon widths
             length = ((self.margin * 2) +
                      (self.spacing * (num_batteries -1)) +
                      (self.battery_width * num_batteries))
-            return length
-        else:
-            return 0
+
+            bar_length += length
+
+            # Add text width if it's being displayed
+            if self.show_text:
+
+                bar_length += (self.max_text_length() +
+                              self.spacing) * num_batteries
+
+        return bar_length
 
     def find_batteries(self, *args):
         # Get all UPower devices that are named "battery"
         batteries = [b for b in self.upower.EnumerateDevices()
                                   if "battery" in b]
+
+        if not batteries:
+            logger.warning("No batteries found. No icons will be displayed.")
 
         # Get DBus object for each battery
         self.batteries = [self.bus.get(UPOWER_INTERFACE, b) for b in batteries]
@@ -79,6 +120,9 @@ class LaptopBatteryWidget(base._Widget):
         if self.battery_name:
             self.batteries = [b for b in self.batteries
                               if b.NativePath == self.battery_name]
+
+            if not self.batteries:
+                logger.warning("No battery found matching {}.".format(self.battery_name))
 
         # Listen for change signals on DBus
         for battery in self.batteries:
@@ -151,8 +195,74 @@ class LaptopBatteryWidget(base._Widget):
             # Increase offset for next battery
             offset = offset + self.spacing + self.battery_width
 
+            if self.show_text:
+
+                percentage = battery.Percentage
+
+                # Generate text based on status and format time-to-full or
+                # time-to-empty
+                if self.charging:
+                    ttf = self.secs_to_hm(battery.TimeToFull)
+                    text = self.text_charging.format(percentage=percentage,
+                                                     ttf=ttf)
+                else:
+                    tte = self.secs_to_hm(battery.TimeToEmpty)
+                    text = self.text_discharging.format(percentage=percentage,
+                                                        tte=tte)
+
+                # Create a text box
+                layout = self.drawer.textlayout(text,
+                                                self.font_colour,
+                                                self.font,
+                                                self.fontsize,
+                                                None,
+                                                wrap=False)
+
+                # We want to centre this vertically
+                y_offset = (self.bar.height - layout.height) / 2
+
+                # Set the layout as wide as the widget so text is centred
+                layout.width = self.max_text_length()
+
+                # Draw it
+                layout.draw(offset, y_offset)
+
+                # Increase the offset
+                offset += layout.width
+
         # Redraw the bar
         self.bar.draw()
 
+    def secs_to_hm(self, secs):
+        # Basic maths to convert seconds to h:mm format
+        m, _ = divmod(secs, 60)
+        h, m = divmod(m, 60)
+
+        # Need to mke sure minutes are zero padded in case single digit
+        return ("{}:{:02d}".format(h, m))
+
     def draw(self):
         self.drawer.draw(offsetx=self.offset, width=self.length)
+
+    def button_press(self, x, y, button):
+        # Check if it's a right click and, if so, toggle textt
+        if button == 1:
+            if not self.show_text:
+                self.show_text = True
+
+                # Start a timer to hide the text
+                self.hide_timer = self.timeout_add(self.text_displaytime,
+                                                   self.hide)
+            else:
+                self.show_text = False
+
+                # Cancel the timer as no need for it if text is hidden already
+                if self.hide_timer:
+                    self.hide_timer.cancel()
+
+            self.update()
+
+    def hide(self):
+        # Self-explanatory!
+        self.show_text = False
+        self.update()

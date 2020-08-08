@@ -27,6 +27,9 @@ _Charging:_</br>
 _Multiple batteries:_</br>
 ![Screenshot](images/battery_multiple.png?raw=true)
 
+_Showing text:_</br>
+![Screenshot](images/battery_textdisplay.gif?raw=true)
+
 ## Installation
 
 You can clone the repository and run:
@@ -68,6 +71,18 @@ The widget allows the battery icon to be resized and to display colours for diff
 The widget can be customised with the following arguments:
 
 <table>
+    <tr>
+            <td>font</td>
+            <td>Default font</td>
+    </tr>
+    <tr>
+            <td>fontsize</td>
+            <td>Font size</td>
+    </tr>
+    <tr>
+            <td>font_colour</td>
+            <td>Font colour for information text</td>
+    </tr>
     <tr>
             <td>battery_height</td>
             <td>Height of battery icon</td>
@@ -119,6 +134,18 @@ The widget can be customised with the following arguments:
     <tr>
             <td>percentage_critical</td>
             <td>Critical level threshold.</td>
+    </tr>
+    <tr>
+            <td>text_charging</td>
+            <td>Text to display when charging.</td>
+    </tr>
+    <tr>
+            <td>text_discharging</td>
+            <td>Text to display when on battery.</td>
+    </tr>
+    <tr>
+            <td>text_displaytime</td>
+            <td>Time for text to remain before hiding</td>
     </tr>
 </table>
 
