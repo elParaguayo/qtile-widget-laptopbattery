@@ -11,6 +11,8 @@ class LaptopBatteryWidget(base._Widget):
 
     orientations = base.ORIENTATION_HORIZONTAL
     defaults = [
+        ("font", "sans", "Default font"),
+        ("fontsize", None, "Font size"),
         ("font_colour", "ffffff", "Font colour for information text"),
         ("battery_height", 10, "Height of battery icon"),
         ("battery_width", 20, "Size of battery icon"),
@@ -25,8 +27,10 @@ class LaptopBatteryWidget(base._Widget):
         ("spacing", 5, "Space between batteries"),
         ("percentage_low", 0.20, "Low level threshold."),
         ("percentage_critical", 0.10, "Critical level threshold."),
-        ("text_charging", "({percentage:.0f}%) {ttf} until fully charged"),
-        ("text_discharging", "({percentage:.0f}%) {tte} until empty"),
+        ("text_charging", "({percentage:.0f}%) {ttf} until fully charged",
+                          "Text to display when charging."),
+        ("text_discharging", "({percentage:.0f}%) {tte} until empty",
+                          "Text to display when on battery."),
         ("text_displaytime", 5, "Time for text to remain before hiding"),
     ]
 
