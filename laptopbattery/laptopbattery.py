@@ -68,7 +68,7 @@ class LaptopBatteryWidget(base._Widget):
         # Is laptop charging?
         self.charging = not self.upower.OnBattery
 
-        self.update()
+        # self.update()
 
     def max_text_length(self):
         # Generate text string based on status
@@ -137,14 +137,14 @@ class LaptopBatteryWidget(base._Widget):
         self.charging = not self.upower.OnBattery
 
         # Redraw the widget
-        self.update()
+        self.bar.draw()
 
     def battery_change(self, sender, props, invalidated):
         # The batteries are polled every 2 mins by DBus so let's just update
         # when we get any signal
-        self.update()
+        self.bar.draw()
 
-    def update(self):
+    def draw(self):
         # Remove background
         self.drawer.clear(self.background or self.bar.background)
 
@@ -235,7 +235,8 @@ class LaptopBatteryWidget(base._Widget):
                 offset += layout.width
 
         # Redraw the bar
-        self.bar.draw()
+        # self.bar.draw()
+        self.drawer.draw(offsetx=self.offset, width=self.length)
 
     def secs_to_hm(self, secs):
         # Basic maths to convert seconds to h:mm format
@@ -245,8 +246,8 @@ class LaptopBatteryWidget(base._Widget):
         # Need to mke sure minutes are zero padded in case single digit
         return ("{}:{:02d}".format(h, m))
 
-    def draw(self):
-        self.drawer.draw(offsetx=self.offset, width=self.length)
+    # def draw(self):
+    #     self.drawer.draw(offsetx=self.offset, width=self.length)
 
     def button_press(self, x, y, button):
         # Check if it's a right click and, if so, toggle textt
@@ -264,9 +265,9 @@ class LaptopBatteryWidget(base._Widget):
                 if self.hide_timer:
                     self.hide_timer.cancel()
 
-            self.update()
+            self.bar.draw()
 
     def hide(self):
         # Self-explanatory!
         self.show_text = False
-        self.update()
+        self.bar.draw()
