@@ -1,7 +1,7 @@
 import pydbus
 
 from libqtile.widget import base
-from libqtile import bar, images
+from libqtile import bar
 from libqtile.log_utils import logger
 
 UPOWER_INTERFACE = ".UPower"
@@ -19,7 +19,8 @@ class LaptopBatteryWidget(base._Widget):
         ("battery_name", None, "Battery name. None = all batteries"),
         ("border_charge_colour", "8888ff", "Border colour when charging."),
         ("border_colour", "dbdbe0", "Border colour when discharging."),
-        ("border_critical_colour", "cc0000", "Border colour when battery low."),
+        ("border_critical_colour", "cc0000",
+                                   "Border colour when battery low."),
         ("fill_normal", "dbdbe0", "Fill when normal"),
         ("fill_low", "aa00aa", "Fill colour when battery low"),
         ("fill_critical", "cc0000", "Fill when critically low"),
@@ -30,7 +31,7 @@ class LaptopBatteryWidget(base._Widget):
         ("text_charging", "({percentage:.0f}%) {ttf} until fully charged",
                           "Text to display when charging."),
         ("text_discharging", "({percentage:.0f}%) {tte} until empty",
-                          "Text to display when on battery."),
+                             "Text to display when on battery."),
         ("text_displaytime", 5, "Time for text to remain before hiding"),
     ]
 
@@ -96,8 +97,8 @@ class LaptopBatteryWidget(base._Widget):
         if num_batteries:
             # Icon widths
             length = ((self.margin * 2) +
-                     (self.spacing * (num_batteries -1)) +
-                     (self.battery_width * num_batteries))
+                      (self.spacing * (num_batteries - 1)) +
+                      (self.battery_width * num_batteries))
 
             bar_length += length
 
@@ -105,14 +106,14 @@ class LaptopBatteryWidget(base._Widget):
             if self.show_text:
 
                 bar_length += (self.max_text_length() +
-                              self.spacing) * num_batteries
+                               self.spacing) * num_batteries
 
         return bar_length
 
     def find_batteries(self, *args):
         # Get all UPower devices that are named "battery"
         batteries = [b for b in self.upower.EnumerateDevices()
-                                  if "battery" in b]
+                     if "battery" in b]
 
         if not batteries:
             logger.warning("No batteries found. No icons will be displayed.")
@@ -126,7 +127,8 @@ class LaptopBatteryWidget(base._Widget):
                               if b.NativePath == self.battery_name]
 
             if not self.batteries:
-                logger.warning("No battery found matching {}.".format(self.battery_name))
+                err = "No battery found matching {}.".format(self.battery_name)
+                logger.warning(err)
 
         # Listen for change signals on DBus
         for battery in self.batteries:
